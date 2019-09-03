@@ -113,20 +113,23 @@ class generate_report():
                     if os.path.isfile("./" + temp_fn):
                         # run RB classifier
                         print("Run GTR...")
-                        gtr.main(sci_fn,
-                                template=temp_fn,
-                                det_thresh='1.5',
-                                algorithm='rf',
-                                cutoff_score=score,
-                                on_science=True,
-                                xmatch=xmatch,
-                                filter_known=['mp', 'ned'],
-                                glade_cat=cat.copy(),
-                                near_galaxy=near_galaxy,
-                                inspect=True)
-
-                        # compress DIFFERENCE
-                        os.system("fpack diff_{}".format(sci_fn))
+                        try:
+                            gtr.main(sci_fn,
+                                    template=temp_fn,
+                                    det_thresh='1.5',
+                                    algorithm='rf',
+                                    cutoff_score=score,
+                                    on_science=True,
+                                    xmatch=xmatch,
+                                    filter_known=['mp', 'ned'],
+                                    glade_cat=cat.copy(),
+                                    near_galaxy=near_galaxy,
+                                    inspect=True)
+                            # compress DIFFERENCE
+                            os.system("fpack diff_{}".format(sci_fn))
+                        except RuntimeError:
+                            output = sci_fn.split("-median")[0] + "_report.pdf"
+                            os.system("touch {}".format(output))
                         # remove all images other than compressed DIFFERENCE image
                         os.system("rm -rf *.fits")
                     else:
@@ -204,19 +207,23 @@ class generate_report():
                     if os.path.isfile("./" + temp_fn):
                         # run RB classifier
                         print("Run GTR...")
-                        gtr.main(sci_fn,
-                                template=temp_fn,
-                                det_thresh='1.5',
-                                algorithm='rf',
-                                cutoff_score=score,
-                                on_science=True,
-                                xmatch=xmatch,
-                                filter_known=['mp', 'ned'],
-                                glade_cat=cat.copy(),
-                                near_galaxy=near_galaxy,
-                                inspect=True)
-                        # compress DIFFERENCE
-                        os.system("fpack diff_{}".format(sci_fn))
+                        try:
+                            gtr.main(sci_fn,
+                                    template=temp_fn,
+                                    det_thresh='1.5',
+                                    algorithm='rf',
+                                    cutoff_score=score,
+                                    on_science=True,
+                                    xmatch=xmatch,
+                                    filter_known=['mp', 'ned'],
+                                    glade_cat=cat.copy(),
+                                    near_galaxy=near_galaxy,
+                                    inspect=True)
+                            # compress DIFFERENCE
+                            os.system("fpack diff_{}".format(sci_fn))
+                        except RuntimeError:
+                            output = sci_fn.split("-median")[0] + "_report.pdf"
+                            os.system("touch {}".format(output))
                         # remove all images other than compressed DIFFERENCE image
                         os.system("rm -rf *.fits")                    
                     else:
@@ -343,19 +350,23 @@ class generate_report():
                 if os.path.isfile("./" + sci_fn) and os.path.isfile("./" + temp_fn):
                     # run RB classifier if both early and late images exist
                     print("Running GTR...")
-                    gtr.main(sci_fn,
-                            template=temp_fn,
-                            det_thresh='1.5',
-                            algorithm='rf',
-                            cutoff_score=score,
-                            on_science=True,
-                            xmatch=xmatch,
-                            filter_known=['mp', 'ned'],
-                            glade_cat=cat.copy(),
-                            near_galaxy=near_galaxy,
-                            inspect=True)
-                    # compress DIFFERENCE
-                    os.system("fpack diff_{}".format(sci_fn))
+                    try:
+                        gtr.main(sci_fn,
+                                template=temp_fn,
+                                det_thresh='1.5',
+                                algorithm='rf',
+                                cutoff_score=score,
+                                on_science=True,
+                                xmatch=xmatch,
+                                filter_known=['mp', 'ned'],
+                                glade_cat=cat.copy(),
+                                near_galaxy=near_galaxy,
+                                inspect=True)
+                        # compress DIFFERENCE
+                        os.system("fpack diff_{}".format(sci_fn))
+                    except RuntimeError:
+                        output = sci_fn.split("-median")[0] + "_report.pdf"
+                        os.system("touch {}".format(output))
                     # remove all images other than compressed DIFFERENCE image
                     os.system("rm -rf *.fits")                    
                 else:
@@ -395,19 +406,23 @@ class generate_report():
                 if os.path.isfile("./" + sci_fn) and os.path.isfile("./" + temp_fn):
                     # run RB classifier if both early and late images exist
                     print("Running GTR...")
-                    gtr.main(sci_fn,
-                            template=temp_fn,
-                            det_thresh='1.5',
-                            algorithm='rf',
-                            cutoff_score=score,
-                            on_science=True,
-                            xmatch=xmatch,
-                            filter_known=['mp', 'ned'],
-                            glade_cat=cat.copy(),
-                            near_galaxy=near_galaxy,
-                            inspect=True)
-                    # compress DIFFERENCE
-                    os.system("fpack diff_{}".format(sci_fn))
+                    try:
+                        gtr.main(sci_fn,
+                                template=temp_fn,
+                                det_thresh='1.5',
+                                algorithm='rf',
+                                cutoff_score=score,
+                                on_science=True,
+                                xmatch=xmatch,
+                                filter_known=['mp', 'ned'],
+                                glade_cat=cat.copy(),
+                                near_galaxy=near_galaxy,
+                                inspect=True)
+                        # compress DIFFERENCE
+                        os.system("fpack diff_{}".format(sci_fn))
+                    except RuntimeError:
+                        output = sci_fn.split("-median")[0] + "_report.pdf"
+                        os.system("touch {}".format(output))
                     # remove all images other than compressed DIFFERENCE image
                     os.system("rm -rf *.fits")                    
                 else:
