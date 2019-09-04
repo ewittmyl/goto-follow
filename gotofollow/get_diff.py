@@ -246,17 +246,17 @@ class generate_report():
         # get followup images taken on early_day
         early_obs = event.Query(target=target, day=early_day)
         # give prefix for early_obs table columns
-        early_obs.images.columns = "early_" + early_obs.images.columns
+        early_obs.image_table.columns = "early_" + early_obs.image_table.columns
 
         if late_day:  # observation day you want to compare with the 'early_day'
     
             # get followup images taken on late_day
             late_obs = event.Query(target=target, day=late_day)
             # give prefix for early_obs table columns
-            late_obs.images.columns = "late_" + late_obs.images.columns
+            late_obs.image_table.columns = "late_" + late_obs.image_table.columns
 
             # merge obs table on tile and UT
-            df = pd.merge(early_obs.images, late_obs.images, how="inner", left_on=["early_tile","early_UT"], right_on=["late_tile","late_UT"]) 
+            df = pd.merge(early_obs.image_table, late_obs.image_table, how="inner", left_on=["early_tile","early_UT"], right_on=["late_tile","late_UT"]) 
             
             # drop row without 'late_day' observations
             df.dropna(subset=['late_filename'], inplace=True)
@@ -299,7 +299,7 @@ class generate_report():
 
             df['late_date'] = [date_dir(str(d)) for d in df.late_obsdate]
 
-            done_fn = [fn.split("_report")[0]+"-median.fits" for fn in os.listdir("./") if 'report' in fn]
+        done_fn = [fn.split("_report")[0]+"-median.fits" for fn in os.listdir("./") if 'report' in fn]
 
         if len(done_fn) != 0:
             # print out all processed images if some images are done before

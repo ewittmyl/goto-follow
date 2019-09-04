@@ -116,7 +116,7 @@ class event():
                 temp_images = temp_images.iloc[-1,:]  # select the last one before the first date of follow up as the template
                 templates = templates.append(temp_images)
             else:
-                no_temp = pd.DataFrame(np.nan, index=[1], columns=templates.columns)
+                no_temp = pd.DataFrame(np.nan, index=[1], columns=["template_filename","template_date","template_obsdate","template_target"])
                 templates = templates.append(no_temp)
 
         templates = templates.reset_index().drop("index",axis=1)
