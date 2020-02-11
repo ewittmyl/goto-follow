@@ -21,7 +21,7 @@ class generate_report():
         using specific day of follow-up images as templates
     """
     @staticmethod
-    def TemplateComparing(target, day=1, download=True, score=0.5, thresh='1.5', xmatch=['ned','mp','glade'], near_galaxy=True):
+    def TemplateComparing(target, day=1, download=True, score=0.5, xmatch=True, near_galaxy=True):
         
         # read GLADE
         cat = gtr.read_glade()
@@ -83,16 +83,7 @@ class generate_report():
                 try:
                     # use template inside FITS to run GTR
                     print("Extract TEMPLATE and DIFFERENCE from SCIENCE FITS + Run GTR...")
-                    gtr.main(sci_fn,
-                            det_thresh='1.5',
-                            algorithm='rf',
-                            cutoff_score=score,
-                            on_science=True,
-                            xmatch=xmatch,
-                            filter_known=['mp', 'ned'],
-                            glade_cat=cat.copy(),
-                            near_galaxy=near_galaxy,
-                            inspect=True)
+                    gtr.main(sci_fn, template=None, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                     # compress DIFFERENCE
                     os.system("fpack DIFFERENCE_{}".format(sci_fn))
                     # remove all images other than compressed DIFFERENCE image
@@ -114,17 +105,7 @@ class generate_report():
                         # run RB classifier
                         print("Run GTR...")
                         try:
-                            gtr.main(sci_fn,
-                                    template=temp_fn,
-                                    det_thresh='1.5',
-                                    algorithm='rf',
-                                    cutoff_score=score,
-                                    on_science=True,
-                                    xmatch=xmatch,
-                                    filter_known=['mp', 'ned'],
-                                    glade_cat=cat.copy(),
-                                    near_galaxy=near_galaxy,
-                                    inspect=True)
+                            gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                             # compress DIFFERENCE
                             os.system("fpack diff_{}".format(sci_fn))
                         except RuntimeError:
@@ -171,17 +152,7 @@ class generate_report():
                 try:
                     # extract TEMPLATE and DIFFERENCE image from SCIENCE image + run RB classifier
                     print("Extract TEMPLATE and DIFFERENCE from SCIENCE FITS + Run GTR...")
-                    gtr.main(sci_fn,
-                                template=None,
-                                det_thresh='1.5',
-                                algorithm='rf',
-                                cutoff_score=score,
-                                on_science=True,
-                                xmatch=xmatch,
-                                filter_known=['mp', 'ned'],
-                                glade_cat=cat.copy(),
-                                near_galaxy=near_galaxy,
-                                inspect=True)
+                    gtr.main(sci_fn, template=None, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                     # compress DIFFERENCE
                     os.system("fpack DIFFERENCE_{}".format(sci_fn))
                     # remove all images other than compressed DIFFERENCE image
@@ -208,17 +179,7 @@ class generate_report():
                         # run RB classifier
                         print("Run GTR...")
                         try:
-                            gtr.main(sci_fn,
-                                    template=temp_fn,
-                                    det_thresh='1.5',
-                                    algorithm='rf',
-                                    cutoff_score=score,
-                                    on_science=True,
-                                    xmatch=xmatch,
-                                    filter_known=['mp', 'ned'],
-                                    glade_cat=cat.copy(),
-                                    near_galaxy=near_galaxy,
-                                    inspect=True)
+                            gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                             # compress DIFFERENCE
                             os.system("fpack diff_{}".format(sci_fn))
                         except RuntimeError:
@@ -238,7 +199,7 @@ class generate_report():
                 temp_date, temp_fn, sci_date, sci_fn = "", "", "", ""    
 
     @staticmethod
-    def FollowupComparing(target, early_day=1, late_day=2, download=True, score=0.5, thresh='1.5', xmatch=['ned','mp','glade'], near_galaxy=True):
+    def FollowupComparing(target, early_day=1, late_day=2, download=True, score=0.5, xmatch=True, near_galaxy=True):
         
         # read GLADE catalog
         cat = gtr.read_glade()
@@ -351,17 +312,7 @@ class generate_report():
                     # run RB classifier if both early and late images exist
                     print("Running GTR...")
                     try:
-                        gtr.main(sci_fn,
-                                template=temp_fn,
-                                det_thresh='1.5',
-                                algorithm='rf',
-                                cutoff_score=score,
-                                on_science=True,
-                                xmatch=xmatch,
-                                filter_known=['mp', 'ned'],
-                                glade_cat=cat.copy(),
-                                near_galaxy=near_galaxy,
-                                inspect=True)
+                        gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                         # compress DIFFERENCE
                         os.system("fpack diff_{}".format(sci_fn))
                     except RuntimeError:
@@ -407,17 +358,7 @@ class generate_report():
                     # run RB classifier if both early and late images exist
                     print("Running GTR...")
                     try:
-                        gtr.main(sci_fn,
-                                template=temp_fn,
-                                det_thresh='1.5',
-                                algorithm='rf',
-                                cutoff_score=score,
-                                on_science=True,
-                                xmatch=xmatch,
-                                filter_known=['mp', 'ned'],
-                                glade_cat=cat.copy(),
-                                near_galaxy=near_galaxy,
-                                inspect=True)
+                        gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                         # compress DIFFERENCE
                         os.system("fpack diff_{}".format(sci_fn))
                     except RuntimeError:
