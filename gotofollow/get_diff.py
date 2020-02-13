@@ -134,6 +134,7 @@ class generate_report():
                 print("Copying SCIENCE {} from 'IMG_PATH'...".format(sci_fn))
 
                 # copying SCIENCE
+                print(sci_date)
                 if os.path.isfile(IMG_PATH+sci_date+"/"+sci_fn):
                     os.system("cp "+IMG_PATH+sci_date+"/"+sci_fn+" .")
                 if os.path.isfile(IMG_PATH+sci_date+"/final/"+sci_fn):
