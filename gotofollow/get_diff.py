@@ -85,7 +85,7 @@ class generate_report():
                     print("Extract TEMPLATE and DIFFERENCE from SCIENCE FITS + Run GTR...")
                     gtr.main(sci_fn, template=None, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                     # compress DIFFERENCE
-                    os.system("fpack DIFFERENCE_{}".format(sci_fn))
+                    os.system("fpack {}".format(sci_fn))
                     # remove all images other than compressed DIFFERENCE image
                     os.system("rm -rf *.fits")
                 except:
@@ -107,7 +107,7 @@ class generate_report():
                         try:
                             gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                             # compress DIFFERENCE
-                            os.system("fpack diff_{}".format(sci_fn))
+                            os.system("fpack {}".format(sci_fn))
                         except RuntimeError:
                             output = sci_fn.split("-median")[0] + "_report.pdf"
                             os.system("touch {}".format(output))
@@ -134,7 +134,6 @@ class generate_report():
                 print("Copying SCIENCE {} from 'IMG_PATH'...".format(sci_fn))
 
                 # copying SCIENCE
-                print(sci_date)
                 if os.path.isfile(IMG_PATH+sci_date+"/"+sci_fn):
                     os.system("cp "+IMG_PATH+sci_date+"/"+sci_fn+" .")
                 if os.path.isfile(IMG_PATH+sci_date+"/final/"+sci_fn):
@@ -155,7 +154,7 @@ class generate_report():
                     print("Extract TEMPLATE and DIFFERENCE from SCIENCE FITS + Run GTR...")
                     gtr.main(sci_fn, template=None, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                     # compress DIFFERENCE
-                    os.system("fpack DIFFERENCE_{}".format(sci_fn))
+                    os.system("fpack {}".format(sci_fn))
                     # remove all images other than compressed DIFFERENCE image
                     os.system("rm -rf *.fits")
 
@@ -182,7 +181,7 @@ class generate_report():
                         try:
                             gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=xmatch, glade=cat.copy(), near_galaxy=near_galaxy, report=True)
                             # compress DIFFERENCE
-                            os.system("fpack diff_{}".format(sci_fn))
+                            os.system("fpack {}".format(sci_fn))
                         except RuntimeError:
                             output = sci_fn.split("-median")[0] + "_report.pdf"
                             os.system("touch {}".format(output))
