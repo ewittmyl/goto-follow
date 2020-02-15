@@ -17,6 +17,7 @@ class GenerateReports():
     @staticmethod
     def TemplateComparing(target, day=1, subtract=False, score=0.5, near_galaxy=False, phase=4):
         # obtain image table for followup images and get their template
+        print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
         if event_cls.image_table.shape[0] == 0:
             # terminate the run if the image table is empty
@@ -26,6 +27,7 @@ class GenerateReports():
         # define all processed images which will be skipped in this run
         processed_img = [''.join(fn.split("_report")[0],"-median.fits") for fn in os.listdir("./") if 'report' in fn]
         if len(processed_img) != 0:
+            print("Skip processing processed images...")
             # filter out the processed images in the image table
             processed_mask = event_cls.image_table['filename'].isin(processd_images)
             event_cls.image_table = event_cls.image_table[~processed_mask]
@@ -34,9 +36,11 @@ class GenerateReports():
                 print("All images are processed.")
                 return
         
+        print("Loading GLADE catalog...")
         glade_cat = gtr.read_glade()
 
         if subtract:
+            print("Getting the lastest observations taken before the trigger as the manual templates for subtraction...")
             event_cls.GetTemplate()
             return
         else:
@@ -48,6 +52,7 @@ class GenerateReports():
                 img_path = get_path(str(sci_date))
                 
                 if os.path.isfile(os.path.join(img_path, sci_fn)):
+                    print("Copying {} to the current directory from {}".format(sci_fn, os.path.join(img_path, sci_fn)))
                     os.system('cp {} .'.format(os.path.join(img_path, sci_fn)))
                 else:
                     print("{} cannot be copied to the current directory.".format(sci_fn))
