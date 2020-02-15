@@ -32,8 +32,8 @@ def get_path(date):
     IMG_PATHS = getattr(config, 'FILE_PATH')
     for img_path in IMG_PATHS:
         # check which path contains the date we want
-        if os.path.isdir(os.path.join(img_path, event_cls.image_table.date.values[0])):
-            IMG_PATH = os.path.join(img_path, event_cls.image_table.date.values[0])
+        if os.path.isdir(os.path.join(img_path, date)):
+            IMG_PATH = os.path.join(img_path, date)
             if os.path.isdir(os.path.join(IMG_PATH, 'final')):
                 IMG_PATH = os.path.join(IMG_PATH, 'final')
     return IMG_PATH
