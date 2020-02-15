@@ -1,3 +1,3 @@
 from .followups import *
-from .get_diff import UTC2date
+from .get_diff import *
 from .gf_tools import *
