@@ -25,7 +25,7 @@ class GenerateReports():
             return
 
         # define all processed images which will be skipped in this run
-        processed_img = [''.join(fn.split("_report")[0],"-median.fits") for fn in os.listdir("./") if 'report' in fn]
+        processed_img = [''.join([fn.split("_report")[0],"-median.fits"]) for fn in os.listdir("./") if 'report' in fn]
         if len(processed_img) != 0:
             print("Skip processing processed images...")
             # filter out the processed images in the image table
@@ -42,7 +42,43 @@ class GenerateReports():
         if subtract:
             print("Getting the lastest observations taken before the trigger as the manual templates for subtraction...")
             event_cls.GetTemplate()
-            return
+            for img in event_cls.image_table.iterrows():
+                # define useful information for both science and template images in order to be copied to the current directory
+                sci_date = img[1]['date']
+                sci_fn = img[1]['filename']
+                temp_date = img[1]['temp_date']
+                temp_fn = img[1]['temp_filename']
+                # get the image path for both science and template images
+                sci_img_path = get_path(str(sci_date))
+                temp_img_path = get_path(str(temp_date))
+
+                if os.path.isfile(os.path.join(sci_img_path, sci_fn)):
+                    print("Copying science {} to the current directory from {}".format(sci_fn, os.path.join(sci_img_path, sci_fn)))
+                    os.system('cp {} .'.format(os.path.join(sci_img_path, sci_fn)))
+                    if os.path.isfile(os.path.join(temp_img_path, temp_fn)):
+                        print("Copying template {} to the current directory from {}".format(temp_fn, os.path.join(temp_img_path, temp_fn)))
+                        os.system('cp {} .'.format(os.path.join(temp_img_path, temp_fn)))
+                    else:
+                        print("Template {} cannot be copied to the current directory.".format(temp_fn))
+                        os.system('rm -rf *.fits')
+                        sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                        pass
+                else:
+                    print("Science {} cannot be copied to the current directory.".format(sci_fn))
+                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    pass
+                
+                try:
+                    print("Running GTR on {}...".format(sci_fn))
+                    gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=True, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                    os.system("fpack {}".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                except:
+                    print("GTR cannot be ran on {}...".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    pass
+                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
         else:
             for img in event_cls.image_table.iterrows():
                 sci_date = img[1]['date']
@@ -56,6 +92,7 @@ class GenerateReports():
                     os.system('cp {} .'.format(os.path.join(img_path, sci_fn)))
                 else:
                     print("{} cannot be copied to the current directory.".format(sci_fn))
+                    sci_date, sci_fn = "", ""
                     pass
 
                 try:
@@ -66,19 +103,137 @@ class GenerateReports():
                 except:
                     print("GTR cannot be ran on {}...".format(sci_fn))
                     os.system("rm -rf *.fits")
+                    sci_date, sci_fn = "", ""
                     pass
 
                 sci_date, sci_fn = "", ""
 
+    @staticmethod
+    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.5, near_galaxy=False, phase=4):     
+        # get followup images taken on sci_day
+        sci_obs = event.Query(target, day=sci_day, phase=phase)
+
+        # give prefix for early_obs table columns
+        sci_obs.image_table.columns = "sci_" + sci_obs.image_table.columns
+
+        if sci_obs.shape[0] == 0:
+            print("Science table is empty.")
+            return
+
+        if temp_day:
+            # get followup images taken on temp_day
+            temp_obs = event.Query(target, day=temp_day, phase=phase)
+            # give prefix for temp_obs table columns
+            temp_obs.image_table.columns = "temp_" + temp_obs.image_table.columns
+
+            # merge obs table on tile and UT
+            df = pd.merge(sci_obs.image_table, temp_obs.image_table, how="inner", left_on=["sci_tile","sci_UT"], right_on=["temp_tile","temp_UT"]) 
                 
+            # drop row without 'temp_day' observations
+            df.dropna(subset=['temp_filename'], inplace=True)
+
+            if df.shape[0] == 0:
+                print("Image table is empty.")
+                return
+
+        else:
+            # compare sci_day obs with the next obs if temp_day is not given
+            # connect to database via `goto_cat`
+            g4 = gc.GOTOdb(phase=phase)
+
+            # create empty df for 'temp_obs'
+            temp_obs = pd.DataFrame(columns=["temp_obsdate", "temp_filename", "temp_target"])
+
+            for d in sci_obs.iterrows():
+                obs_list = g4.query("""SELECT obsdate, filename, target FROM image WHERE target LIKE '%{}' 
+                                AND filename LIKE '%{}-median.fits' ORDER BY 
+                                obsdate ASC""".format(d[1]["sci_target"], d[1]["sci_UT"]))
+                obs_list.columns = 'temp_' + obs_list.columns
+                obs_list = obs_list.drop_duplicates(subset="temp_filename", keep="first")
+
+                # selection the observations beyond the 'sci_day' observation
+                mask_beyond_firstobs = obs_list['temp_obsdate'] > d[1]['sci_obsdate']
+                obs_list = obs_list[mask_beyond_firstobs]
+
+                if obs_list.shape[0] != 0:
+                    # if there exists observation(s) beyond 'early_day' observations
+                    temp_obs = temp_obs.append(obs_list.iloc[0,:])  # pick the first observation beyond 'sci_day'
+                else:
+                    # if no observation beyond 'sci_day', create a rwo filled with NaN
+                    no_temp_obs = pd.DataFrame(np.nan, index=[1], columns=temp_obs.columns)
+                    temp_obs = temp_obs.append(no_temp_obs)
+
+                # join both 'sci_day' and 'temp_day' table together
+                temp_obs = temp_obs.reset_index().drop("index",axis=1)
+                df = sci_obs.join(latetemp_obs_obs)
+
+                # drop row without 'temp_day' observations
+                df.dropna(subset=['temp_filename'], inplace=True)
+
+                df['temp_date'] = [UTC2date(str(d)) for d in df.temp_obsdate]
+
+            if df.shape[0] == 0:
+                print("Image table is empty.")
+                return
+
+            # define all processed images which will be skipped in this run
+            processed_img = [''.join([fn.split("_report")[0],"-median.fits"]) for fn in os.listdir("./") if 'report' in fn]
+
+            if len(processed_img) != 0:
+                print("Skip processing processed images...")
+                # filter out the processed images in the image table
+                processed_mask = df.sci_filename.isin(processed_img)
+                df = df[~processed_mask]
+
+                if df.shape[0] == 0:
+                    # return if science-template image table is empty
+                    print("All images are processed!")
+                    return 
+
+        print("Loading GLADE catalog...")
+        glade_cat = gtr.read_glade()
+
+        for img in df.iterrows():
+            # define useful information for both science and template images in order to be copied to the current directory
+            sci_date = img[1]['sci_date']
+            sci_fn = img[1]['sci_filename']
+            temp_date = img[1]['temp_date']
+            temp_fn = img[1]['temp_filename']
+            # get the image path for both science and template images
+            sci_img_path = get_path(str(sci_date))
+            temp_img_path = get_path(str(temp_date))
+            
+            if os.path.isfile(os.path.join(sci_img_path, sci_fn)):
+                print("Copying science {} to the current directory from {}".format(sci_fn, os.path.join(sci_img_path, sci_fn)))
+                os.system('cp {} .'.format(os.path.join(sci_img_path, sci_fn)))
+                if os.path.isfile(os.path.join(temp_img_path, temp_fn)):
+                    print("Copying template {} to the current directory from {}".format(temp_fn, os.path.join(temp_img_path, temp_fn)))
+                    os.system('cp {} .'.format(os.path.join(temp_img_path, temp_fn)))
+                else:
+                    print("Template {} cannot be copied to the current directory.".format(temp_fn))
+                    os.system('rm -rf *.fits')
+                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    pass
+            else:
+                print("Science {} cannot be copied to the current directory.".format(sci_fn))
+                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                pass
+            try:
+                print("Running GTR on {}...".format(sci_fn))
+                gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=True, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                os.system("fpack {}".format(sci_fn))
+                os.system("rm -rf *.fits")
+            except:
+                print("GTR cannot be ran on {}...".format(sci_fn))
+                os.system("rm -rf *.fits")
+                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                pass
+            sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+
                 
-
-
-
-
-
-
-
+            
+        
+            
 
 
 

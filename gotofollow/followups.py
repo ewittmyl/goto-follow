@@ -75,8 +75,8 @@ class event():
 
         g = gc.GOTOdb(phase=self.phase)
 
-        temp_df = pd.DataFrame(columns=["temp_obsdate", "temp_filename", "temp_target"])
-        temp_obsdate, temp_filename, temp_target = [], [], []
+        temp_df = pd.DataFrame(columns=["temp_obsdate", "temp_filename", "temp_target", "temp_date"])
+        temp_obsdate, temp_filename, temp_target, temp_date = [], [], [], []
 
         for img in self.image_table.iterrows():
             query_cmd = """SELECT obsdate, filename, target FROM image WHERE target
@@ -90,15 +90,18 @@ class event():
                     temp_obsdate.append(temp_search.obsdate.values[0])
                     temp_filename.append(temp_search.filename.values[0])
                     temp_target.append(temp_search.target.values[0])
+                    temp_date.append(temp_search.date.values[0])
                 else:
                     temp_obsdate.append('NaN')
                     temp_filename.append('NaN')
                     temp_target.append('NaN')
+                    temp_date.append('NaN')
             else:
                 print("No {}({}) images could be found in database.".format(img[1]["tile"],img[1]["UT"]))
 
         temp_df['temp_obsdate'] = temp_obsdate
         temp_df['temp_filename'] = temp_filename
         temp_df['temp_target'] = temp_target
+        temp_df['temp_date'] = temp_date
 
         self.image_table = self.image_table.join(temp_df)
