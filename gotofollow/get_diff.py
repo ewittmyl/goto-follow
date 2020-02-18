@@ -29,7 +29,7 @@ class GenerateReports():
         if len(processed_img) != 0:
             print("Skip processing processed images...")
             # filter out the processed images in the image table
-            processed_mask = event_cls.image_table['filename'].isin(processd_images)
+            processed_mask = event_cls.image_table['filename'].isin(processed_images)
             event_cls.image_table = event_cls.image_table[~processed_mask]
             
             if event_cls.image_table.shape[0] == 0:
