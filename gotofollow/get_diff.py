@@ -15,7 +15,7 @@ from .gf_tools import UTC2date, get_path
 class GenerateReports():
 
     @staticmethod
-    def TemplateComparing(target, day=1, subtract=False, score=0.5, near_galaxy=False, phase=4):
+    def TemplateComparing(target, day=1, subtract=False, score=0.5, near_galaxy=True, phase=4):
         # obtain image table for followup images and get their template
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
@@ -70,7 +70,7 @@ class GenerateReports():
                 
                 try:
                     print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=True, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                    gtr.main(sci_fn, template=temp_fn, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except:
@@ -97,7 +97,7 @@ class GenerateReports():
 
                 try:
                     print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=None, thresh=score, xmatch=True, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                    gtr.main(sci_fn, template=None, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except:
@@ -109,7 +109,7 @@ class GenerateReports():
                 sci_date, sci_fn = "", ""
 
     @staticmethod
-    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.5, near_galaxy=False, phase=4):     
+    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.5, near_galaxy=True, phase=4):     
         # get followup images taken on sci_day
         sci_obs = event.Query(target, day=sci_day, phase=phase)
 
@@ -220,7 +220,7 @@ class GenerateReports():
                 pass
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, xmatch=True, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                gtr.main(sci_fn, template=temp_fn, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
