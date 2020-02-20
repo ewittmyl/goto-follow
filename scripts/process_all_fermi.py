@@ -18,6 +18,7 @@ for fid in fermi_id:
     if os.path.isdir('./{}'.format(fid)):
         os.mkdir('./{}'.format(fid))
     os.chdir('./{}'.format(fid))
-    gf.
+    gf.GenerateReports.TemplateComparing(fid, day=1, subtract=False, score=0.5, near_galaxy=True)
+    os.system("rm -rf *.fz")
     os.chdir('../')
 
