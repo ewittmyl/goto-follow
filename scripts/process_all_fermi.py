@@ -15,7 +15,7 @@ fermi_id = list(set(fermi_id))
 fermi_id.sort(reverse=True)
 
 for fid in fermi_id:
-    if os.path.isdir('./{}'.format(fid)):
+    if not os.path.isdir('./{}'.format(fid)):
         os.mkdir('./{}'.format(fid))
     os.chdir('./{}'.format(fid))
     gf.GenerateReports.TemplateComparing(fid, day=1, subtract=False, score=0.5, near_galaxy=True)
