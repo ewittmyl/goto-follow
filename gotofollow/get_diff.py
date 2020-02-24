@@ -10,7 +10,9 @@ from datetime import timedelta
 from astropy.io import fits
 from astropy.io.fits import getdata, update, getheader
 from . import config
-from .gf_tools import UTC2date, get_path
+from .gf_tools import UTC2date, find
+
+file_path = '/export/'
 
 class GenerateReports():
 
@@ -44,30 +46,26 @@ class GenerateReports():
             event_cls.GetTemplate()
             for img in event_cls.image_table.iterrows():
                 # define useful information for both science and template images in order to be copied to the current directory
-                sci_date = img[1]['date']
                 sci_fn = img[1]['filename']
-                temp_date = img[1]['temp_date']
                 temp_fn = img[1]['temp_filename']
-                # get the image path for both science and template images
-                sci_img_path = get_path(str(sci_date))
-                temp_img_path = get_path(str(temp_date))
-
-                if os.path.isfile(os.path.join(sci_img_path, sci_fn)):
-                    print("Copying science {} to the current directory from {}".format(sci_fn, os.path.join(sci_img_path, sci_fn)))
-                    os.system('cp {} .'.format(os.path.join(sci_img_path, sci_fn)))
-                    if os.path.isfile(os.path.join(temp_img_path, temp_fn)):
-                        print("Copying template {} to the current directory from {}".format(temp_fn, os.path.join(temp_img_path, temp_fn)))
-                        os.system('cp {} .'.format(os.path.join(temp_img_path, temp_fn)))
+                sci_path = find(sci_fn, file_path)
+                temp_path = find(temp_fn, file_path)
+                if sci_path != 0:
+                    print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                    os.system('cp {} .'.format(sci_path)))
+                    if temp_path != 0:
+                        print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
+                        os.system('cp {} .'.format(temp_path)))
                     else:
                         print("Template {} cannot be copied to the current directory.".format(temp_fn))
                         os.system('rm -rf *.fits')
-                        sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                        sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
                         pass
                 else:
                     print("Science {} cannot be copied to the current directory.".format(sci_fn))
-                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
                     pass
-                
+
                 try:
                     print("Running GTR on {}...".format(sci_fn))
                     gtr.main(sci_fn, template=temp_fn, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
@@ -81,19 +79,18 @@ class GenerateReports():
                 sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
         else:
             for img in event_cls.image_table.iterrows():
-                sci_date = img[1]['date']
                 sci_fn = img[1]['filename']
+                sci_path = find(sci_fn, file_path)
 
                 # get image path in gotohead
-                img_path = get_path(str(sci_date))
-                
-                if os.path.isfile(os.path.join(img_path, sci_fn)):
-                    print("Copying {} to the current directory from {}".format(sci_fn, os.path.join(img_path, sci_fn)))
-                    os.system('cp {} .'.format(os.path.join(img_path, sci_fn)))
+                if sci_path != 0:
+                    print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                    os.system('cp {} .'.format(sci_path)))
                 else:
-                    print("{} cannot be copied to the current directory.".format(sci_fn))
+                    print("Science {} cannot be copied to the current directory.".format(sci_fn))
                     sci_date, sci_fn = "", ""
                     pass
+                
 
                 try:
                     print("Running GTR on {}...".format(sci_fn))
@@ -195,29 +192,27 @@ class GenerateReports():
 
         for img in df.iterrows():
             # define useful information for both science and template images in order to be copied to the current directory
-            sci_date = img[1]['sci_date']
             sci_fn = img[1]['sci_filename']
-            temp_date = img[1]['temp_date']
             temp_fn = img[1]['temp_filename']
-            # get the image path for both science and template images
-            sci_img_path = get_path(str(sci_date))
-            temp_img_path = get_path(str(temp_date))
+            sci_path = find(sci_fn, file_path)
+            temp_path = find(temp_fn, file_path)
             
-            if os.path.isfile(os.path.join(sci_img_path, sci_fn)):
-                print("Copying science {} to the current directory from {}".format(sci_fn, os.path.join(sci_img_path, sci_fn)))
-                os.system('cp {} .'.format(os.path.join(sci_img_path, sci_fn)))
-                if os.path.isfile(os.path.join(temp_img_path, temp_fn)):
-                    print("Copying template {} to the current directory from {}".format(temp_fn, os.path.join(temp_img_path, temp_fn)))
-                    os.system('cp {} .'.format(os.path.join(temp_img_path, temp_fn)))
+            if sci_path != 0:
+                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                os.system('cp {} .'.format(sci_path)))
+                if temp_path != 0:
+                    print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
+                    os.system('cp {} .'.format(temp_path)))
                 else:
                     print("Template {} cannot be copied to the current directory.".format(temp_fn))
                     os.system('rm -rf *.fits')
-                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
                     pass
             else:
                 print("Science {} cannot be copied to the current directory.".format(sci_fn))
-                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
                 pass
+
             try:
                 print("Running GTR on {}...".format(sci_fn))
                 gtr.main(sci_fn, template=temp_fn, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)

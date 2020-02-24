@@ -27,13 +27,9 @@ def UTC2date(time_string):
     
     return date_string
 
-def get_path(date):
-    # get all storage paths of gotohead
-    IMG_PATHS = getattr(config, 'FILE_PATH')
-    for img_path in IMG_PATHS:
-        # check which path contains the date we want
-        if os.path.isdir(os.path.join(img_path, date)):
-            IMG_PATH = os.path.join(img_path, date)
-            if os.path.isdir(os.path.join(IMG_PATH, 'final')):
-                IMG_PATH = os.path.join(IMG_PATH, 'final')
-    return IMG_PATH
+def find(name, path):
+    for root, dirs, files in os.walk(path):
+        if name in files:
+            return os.path.join(root, name)
+        else:
+            return 0
