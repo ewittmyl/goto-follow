@@ -52,7 +52,7 @@ class GenerateReports():
                 temp_path = find(temp_fn, file_path)
                 if sci_path != 0:
                     print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                    os.system('cp {} .'.format(sci_path)))
+                    os.system('cp {} .'.format(sci_path))
                     if temp_path != 0:
                         print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
                         os.system('cp {} .'.format(temp_path)))
