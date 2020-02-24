@@ -55,7 +55,7 @@ class GenerateReports():
                     os.system('cp {} .'.format(sci_path))
                     if temp_path != 0:
                         print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
-                        os.system('cp {} .'.format(temp_path)))
+                        os.system('cp {} .'.format(temp_path))
                     else:
                         print("Template {} cannot be copied to the current directory.".format(temp_fn))
                         os.system('rm -rf *.fits')
@@ -85,7 +85,7 @@ class GenerateReports():
                 # get image path in gotohead
                 if sci_path != 0:
                     print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                    os.system('cp {} .'.format(sci_path)))
+                    os.system('cp {} .'.format(sci_path))
                 else:
                     print("Science {} cannot be copied to the current directory.".format(sci_fn))
                     sci_date, sci_fn = "", ""
@@ -199,10 +199,10 @@ class GenerateReports():
             
             if sci_path != 0:
                 print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                os.system('cp {} .'.format(sci_path)))
+                os.system('cp {} .'.format(sci_path))
                 if temp_path != 0:
                     print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
-                    os.system('cp {} .'.format(temp_path)))
+                    os.system('cp {} .'.format(temp_path))
                 else:
                     print("Template {} cannot be copied to the current directory.".format(temp_fn))
                     os.system('rm -rf *.fits')
