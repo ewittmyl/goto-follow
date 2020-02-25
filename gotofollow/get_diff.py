@@ -47,9 +47,11 @@ class GenerateReports():
             for img in event_cls.image_table.iterrows():
                 # define useful information for both science and template images in order to be copied to the current directory
                 sci_fn = img[1]['filename']
+                sci_date = img[1]['date']
                 temp_fn = img[1]['temp_filename']
-                sci_path = find(sci_fn, file_path)
-                temp_path = find(temp_fn, file_path)
+                temp_date = img[1]['temp_date']
+                sci_path = find(sci_date, sci_fn)
+                temp_path = find(temp_date, temp_fn)
                 if sci_path != 0:
                     print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
                     os.system('cp {} .'.format(sci_path))
@@ -80,7 +82,8 @@ class GenerateReports():
         else:
             for img in event_cls.image_table.iterrows():
                 sci_fn = img[1]['filename']
-                sci_path = find(sci_fn, file_path)
+                sci_date = img[1]['date']
+                sci_path = find(sci_date, sci_fn)
 
                 # get image path in gotohead
                 if sci_path != 0:
@@ -193,9 +196,11 @@ class GenerateReports():
         for img in df.iterrows():
             # define useful information for both science and template images in order to be copied to the current directory
             sci_fn = img[1]['sci_filename']
+            sci_date = img[1]['date']
             temp_fn = img[1]['temp_filename']
-            sci_path = find(sci_fn, file_path)
-            temp_path = find(temp_fn, file_path)
+            temp_date = img[1]['temp_date']
+            sci_path = find(sci_date, sci_fn)
+            temp_path = find(temp_date, temp_fn)
             
             if sci_path != 0:
                 print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))

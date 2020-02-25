@@ -27,7 +27,13 @@ def UTC2date(time_string):
     
     return date_string
 
-def find(name, path):
-    for root, dirs, files in os.walk(path):
-        if name in files:
-            return os.path.join(root, name)
+def find(date, filename):
+    abs_path = ""
+    IMG_PATHS = getattr(config, 'IMG_PATHS')
+    for path in IMG_PATHS:
+        for root, dirs, files in os.walk(path):
+            if date in dirs:
+                abs_path = os.path.join(root, date)
+                abs_path = '/final/'.join([abs_path, filename])
+                return abs_path
+    return 0
