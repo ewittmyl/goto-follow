@@ -38,8 +38,6 @@ class GenerateReports():
                 print("All images are processed.")
                 return
         
-        print("Loading GLADE catalog...")
-        glade_cat = gtr.read_glade()
 
         if subtract:
             print("Getting the lastest observations taken before the trigger as the manual templates for subtraction...")
@@ -70,7 +68,7 @@ class GenerateReports():
 
                 try:
                     print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=temp_fn, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                    gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True)
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except:
@@ -97,7 +95,7 @@ class GenerateReports():
 
                 try:
                     print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=None, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                    gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, report=True)
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except:
@@ -190,8 +188,6 @@ class GenerateReports():
                     print("All images are processed!")
                     return 
 
-        print("Loading GLADE catalog...")
-        glade_cat = gtr.read_glade()
 
         for img in df.iterrows():
             # define useful information for both science and template images in order to be copied to the current directory
@@ -220,7 +216,7 @@ class GenerateReports():
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, glade=glade_cat.copy(), near_galaxy=near_galaxy, report=True)
+                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
