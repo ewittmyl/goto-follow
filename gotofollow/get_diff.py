@@ -96,6 +96,7 @@ class GenerateReports():
                 try:
                     print("Running GTR on {}...".format(sci_fn))
                     gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, report=True)
+                    os.system("mv {0}_report.pdf {0}_subreport.pdf".format(sci_fn.split('.')[0]))
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except:
