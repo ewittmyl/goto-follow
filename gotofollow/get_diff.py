@@ -29,10 +29,13 @@ class GenerateReports():
         # define all processed images which will be skipped in this run
         processed_img = [''.join([fn.split("_report")[0],"-median.fits"]) for fn in os.listdir("./") if 'report' in fn]
         if len(processed_img) != 0:
-            print("Skip processing processed images...")
+            print("Skip processing below processed images...")
+            print(processed_img)
             # filter out the processed images in the image table
             processed_mask = event_cls.image_table['filename'].isin(processed_img)
             event_cls.image_table = event_cls.image_table[~processed_mask]
+            print("Processing below images...")
+            print(event_cls.image_table['filename'].values)
             
             if event_cls.image_table.shape[0] == 0:
                 print("All images are processed.")
@@ -96,7 +99,6 @@ class GenerateReports():
                 try:
                     print("Running GTR on {}...".format(sci_fn))
                     gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, report=True)
-                    os.system("mv {0}_report.pdf {0}_subreport.pdf".format(sci_fn.split('.')[0]))
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except:
