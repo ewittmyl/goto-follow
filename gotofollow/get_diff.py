@@ -27,7 +27,7 @@ class GenerateReports():
             return
 
         # define all processed images which will be skipped in this run
-        processed_img = [''.join([fn.split("_report")[0],"-median.fits"]) for fn in os.listdir("./") if 'report' in fn]
+        processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
         if len(processed_img) != 0:
             print("Skip processing below processed images...")
             print(processed_img)
