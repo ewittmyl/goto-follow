@@ -21,6 +21,7 @@ class GenerateReports():
         # obtain image table for followup images and get their template
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
+        event_cls.GetTemplate()
         if event_cls.image_table.shape[0] == 0:
             # terminate the run if the image table is empty
             print("Image table is empty.")
@@ -43,8 +44,6 @@ class GenerateReports():
         
 
         if subtract:
-            print("Getting the lastest observations taken before the trigger as the manual templates for subtraction...")
-            event_cls.GetTemplate()
             for img in event_cls.image_table.iterrows():
                 # define useful information for both science and template images in order to be copied to the current directory
                 sci_fn = img[1]['filename']
