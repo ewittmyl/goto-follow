@@ -48,6 +48,8 @@ class event():
         image_table['date'] = [UTC2date(str(d)) for d in image_table.obsdate]
         image_table['tile'] = [t.split("_")[-1] for t in image_table.target]
         image_table['UT'] = [fn.split("_")[1][:3] for fn in image_table.filename]
+        # only select UT 1-4
+        image_table = image_table[image_table.UT<'UT5']
         image_table = image_table.reset_index().drop("index",axis=1)
 
         # get all observation dates

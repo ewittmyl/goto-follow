@@ -17,7 +17,7 @@ file_path = '/export/'
 class GenerateReports():
 
     @staticmethod
-    def TemplateComparing(target, day=1, subtract=False, score=0.5, near_galaxy=True, phase=4):
+    def TemplateComparing(target, day=1, score=0.5, near_galaxy=True, phase=4):
         # obtain image table for followup images and get their template
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
@@ -42,71 +42,85 @@ class GenerateReports():
                 print("All images are processed.")
                 return
         
+        for img in event_cls.image_table.iterrows():
+            sci_fn = img[1]['filename']
+            sci_date = img[1]['date']
+            sci_path = find(sci_date, sci_fn)
 
-        if subtract:
-            for img in event_cls.image_table.iterrows():
-                # define useful information for both science and template images in order to be copied to the current directory
-                sci_fn = img[1]['filename']
-                sci_date = img[1]['date']
-                temp_fn = img[1]['temp_filename']
-                temp_date = img[1]['temp_date']
-                sci_path = find(sci_date, sci_fn)
-                temp_path = find(temp_date, temp_fn)
-                if sci_path != 0:
-                    print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                    os.system('cp {} .'.format(sci_path))
-                    if temp_path != 0:
-                        print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
-                        os.system('cp {} .'.format(temp_path))
-                    else:
-                        print("Template {} cannot be copied to the current directory.".format(temp_fn))
-                        os.system('rm -rf *.fits')
-                        sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
-                        pass
+            # get image path in gotohead
+            if sci_path != 0:
+                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                os.system('cp {} .'.format(sci_path))
+            else:
+                print("Science {} cannot be copied to the current directory.".format(sci_fn))
+                sci_date, sci_fn = "", ""
+                pass
+            
+
+            try:
+                print("Running GTR on {}...".format(sci_fn))
+                gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, report=True)
+                os.system("fpack {}".format(sci_fn))
+                os.system("rm -rf *.fits")
+            except:
+                print("GTR cannot be ran on {}...".format(sci_fn))
+                os.system("rm -rf *.fits")
+                sci_date, sci_fn = "", ""
+                pass
+
+            sci_date, sci_fn = "", ""
+
+        # define all processed images which will be skipped in this run
+        processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
+        if len(processed_img) != 0:
+            print("Skip processing below processed images...")
+            print(processed_img)
+            # filter out the processed images in the image table
+            processed_mask = event_cls.image_table['filename'].isin(processed_img)
+            event_cls.image_table = event_cls.image_table[~processed_mask]
+            print("Processing below images...")
+            print(event_cls.image_table['filename'].values)
+            
+            if event_cls.image_table.shape[0] == 0:
+                print("All images are processed.")
+                return
+
+        for img in event_cls.image_table.iterrows():
+            # define useful information for both science and template images in order to be copied to the current directory
+            sci_fn = img[1]['filename']
+            sci_date = img[1]['date']
+            temp_fn = img[1]['temp_filename']
+            temp_date = img[1]['temp_date']
+            sci_path = find(sci_date, sci_fn)
+            temp_path = find(temp_date, temp_fn)
+            if sci_path != 0:
+                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                os.system('cp {} .'.format(sci_path))
+                if temp_path != 0:
+                    print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
+                    os.system('cp {} .'.format(temp_path))
                 else:
-                    print("Science {} cannot be copied to the current directory.".format(sci_fn))
+                    print("Template {} cannot be copied to the current directory.".format(temp_fn))
+                    os.system('rm -rf *.fits')
                     sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
                     pass
+            else:
+                print("Science {} cannot be copied to the current directory.".format(sci_fn))
+                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                pass
 
-                try:
-                    print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True)
-                    os.system("fpack {}".format(sci_fn))
-                    os.system("rm -rf *.fits")
-                except:
-                    print("GTR cannot be ran on {}...".format(sci_fn))
-                    os.system("rm -rf *.fits")
-                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
-                    pass
+            try:
+                print("Running GTR on {}...".format(sci_fn))
+                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True)
+                os.system("fpack {}".format(sci_fn))
+                os.system("rm -rf *.fits")
+            except:
+                print("GTR cannot be ran on {}...".format(sci_fn))
+                os.system("rm -rf *.fits")
                 sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
-        else:
-            for img in event_cls.image_table.iterrows():
-                sci_fn = img[1]['filename']
-                sci_date = img[1]['date']
-                sci_path = find(sci_date, sci_fn)
-
-                # get image path in gotohead
-                if sci_path != 0:
-                    print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                    os.system('cp {} .'.format(sci_path))
-                else:
-                    print("Science {} cannot be copied to the current directory.".format(sci_fn))
-                    sci_date, sci_fn = "", ""
-                    pass
-                
-
-                try:
-                    print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, report=True)
-                    os.system("fpack {}".format(sci_fn))
-                    os.system("rm -rf *.fits")
-                except:
-                    print("GTR cannot be ran on {}...".format(sci_fn))
-                    os.system("rm -rf *.fits")
-                    sci_date, sci_fn = "", ""
-                    pass
-
-                sci_date, sci_fn = "", ""
+                pass
+            sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+        
 
     @staticmethod
     def FollowupComparing(target, sci_day=1, temp_day=None, score=0.5, near_galaxy=True, phase=4):     
