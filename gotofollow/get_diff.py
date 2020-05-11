@@ -17,7 +17,7 @@ file_path = '/export/'
 class GenerateReports():
 
     @staticmethod
-    def TemplateComparing(target, day=1, score=0.5, near_galaxy=True, phase=4):
+    def TemplateComparing(target, day=1, score=0.69, near_galaxy=True, phase=4):
         # obtain image table for followup images and get their template
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
@@ -123,7 +123,7 @@ class GenerateReports():
         
 
     @staticmethod
-    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.5, near_galaxy=True, phase=4):     
+    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.69, near_galaxy=True, phase=4):     
         # get followup images taken on sci_day
         sci_obs = event.Query(target, day=sci_day, phase=phase)
 
