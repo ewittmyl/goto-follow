@@ -111,7 +111,7 @@ class GenerateReports():
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True, catparse=False)
+                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True, catparse=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
@@ -232,7 +232,7 @@ class GenerateReports():
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True, catparse=False)
+                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True, catparse=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
