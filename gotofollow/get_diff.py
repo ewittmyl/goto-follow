@@ -109,17 +109,17 @@ class GenerateReports():
                 sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
                 pass
 
-            # try:
-            print("Running GTR on {}...".format(sci_fn))
-            gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True, catparse=True)
-                # os.system("fpack {}".format(sci_fn))
-                # os.system("rm -rf *.fits")
-            # except:
-            #     print("GTR cannot be ran on {}...".format(sci_fn))
-            #     os.system("rm -rf *.fits")
-            #     sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
-            #     pass
-            # sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+            try:
+                print("Running GTR on {}...".format(sci_fn))
+                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, report=True, catparse=True)
+                os.system("fpack {}".format(sci_fn))
+                os.system("rm -rf *.fits")
+            except:
+                print("GTR cannot be ran on {}...".format(sci_fn))
+                os.system("rm -rf *.fits")
+                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                pass
+            sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
         
 
     @staticmethod
