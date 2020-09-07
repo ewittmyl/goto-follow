@@ -11,6 +11,7 @@ from astropy.io import fits
 from astropy.io.fits import getdata, update, getheader
 from . import config
 from .gf_tools import UTC2date, find
+import sys
 
 file_path = '/export/'
 
@@ -66,6 +67,7 @@ class GenerateReports():
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
+                print(sys.exc_info()[0])
                 print("GTR cannot be ran on {}...".format(sci_fn))
                 os.system("rm -rf *.fits")
                 sci_date, sci_fn = "", ""
