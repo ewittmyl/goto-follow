@@ -31,9 +31,14 @@ def find(date, filename):
     abs_path = ""
     IMG_PATHS = getattr(config, 'IMG_PATHS')
     for path in IMG_PATHS:
-        print("Finding {} in {}".format(filename, path))
-        for root, dirs, files in os.walk(path):
-            if filename in files:
-                abs_path = os.path.join(root, filename)
+        abs_path = os.path.join(path, date)
+        if os.path.exist(abs_path):
+            if 'final' in os.listdir(abs_path):
+                abs_path = os.path.join(abs_path, 'final')
+            if filename in os.listdir(abs_path):
+                abs_path = os.path.join(abs_path, filename)
                 return abs_path
-    return 0
+            else:
+                return 0
+
+        
