@@ -33,9 +33,7 @@ def find(date, filename):
     for path in IMG_PATHS:
         print("Finding {} in {}".format(filename, path))
         for root, dirs, files in os.walk(path):
-            print(dirs)
-            if date in dirs:
-                abs_path = os.path.join(root, date)
-                abs_path = '/final/'.join([abs_path, filename])
+            if filename in files:
+                abs_path = os.path.join(root, filename)
                 return abs_path
     return 0
