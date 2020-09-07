@@ -22,13 +22,15 @@ class GenerateReports():
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
         event_cls.GetTemplate()
+        print("Done!")
         if event_cls.image_table.shape[0] == 0:
             # terminate the run if the image table is empty
-            print("Image table is empty.")
+            print("Image table is empty. Terminate!")
             return
 
         # define all processed images which will be skipped in this run
         processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
+        print("Unprocessed images: {}".format(len(processed_img)))
         if len(processed_img) != 0:
             print("Skip processing below processed images...")
             print(processed_img)
@@ -44,6 +46,7 @@ class GenerateReports():
         
         for img in event_cls.image_table.iterrows():
             sci_fn = img[1]['filename']
+            print("Processing {}...".format(sci_fn))
             sci_date = img[1]['date']
             sci_path = find(sci_date, sci_fn)
 
@@ -72,6 +75,7 @@ class GenerateReports():
 
         # define all processed images which will be skipped in this run
         processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
+        print("Unprocessed images: {}".format(len(processed_img)))
         if len(processed_img) != 0:
             print("Skip processing below processed images...")
             print(processed_img)
@@ -88,6 +92,7 @@ class GenerateReports():
         for img in event_cls.image_table.iterrows():
             # define useful information for both science and template images in order to be copied to the current directory
             sci_fn = img[1]['filename']
+            print("Processing {}...".format(sci_fn))
             sci_date = img[1]['date']
             temp_fn = img[1]['temp_filename']
             temp_date = img[1]['temp_date']
