@@ -1,4 +1,6 @@
 import os
 import pkg_resources
 
-IMG_PATHS = ['/export/gotodata3/gotophoto/storage/pipeline/', '/export/gotodata2/gotophoto/storage/pipeline/']
+DATA_PATHS = '/export/'
+IMG_PATHS = ['/export/' + s + '/gotophoto/storage/pipeline/' for s in os.listdir('/export/')]
+IMG_PATHS = [s for s in os.listdir(s) if os.path.exists(s)]
