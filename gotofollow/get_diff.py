@@ -66,7 +66,7 @@ class GenerateReports():
                 gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, filter_known=filter_known, report=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
-            except:
+            except KeyError:
                 print(sys.exc_info()[0])
                 print("GTR cannot be ran on {}...".format(sci_fn))
                 os.system("rm -rf *.fits")
