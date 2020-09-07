@@ -32,7 +32,7 @@ def find(date, filename):
     IMG_PATHS = getattr(config, 'IMG_PATHS')
     for path in IMG_PATHS:
         abs_path = os.path.join(path, date)
-        if os.path.exist(abs_path):
+        if os.path.exists(abs_path):
             if 'final' in os.listdir(abs_path):
                 abs_path = os.path.join(abs_path, 'final')
             if filename in os.listdir(abs_path):
