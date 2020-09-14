@@ -2,7 +2,10 @@ import gotocat as gc
 import gTranRec as gtr
 import pandas as pd
 import numpy as np
-from .gf_tools import UTC2date
+from .gf_tools import UTC2date, query_db
+from . import config
+from datetime import datetime
+
 
 class event():
     """
@@ -49,8 +52,8 @@ class event():
         image_table['tile'] = [t.split("_")[-1] for t in image_table.target]
         image_table['UT'] = [fn.split("_")[1][:3] for fn in image_table.filename]
         # only select UT 1-4
-        if image_table.shape[0] != 0:
-            image_table = image_table[image_table.UT<'UT5']
+        # if image_table.shape[0] != 0:
+        #     image_table = image_table[image_table.UT<'UT5']
         image_table = image_table.reset_index().drop("index",axis=1)
 
         # get all observation dates
@@ -75,36 +78,33 @@ class event():
     def GetTemplate(self):
         # define first follow-up date
         first_date = self.dates[0]
+        obsdate_fmt = "%Y-%m-%d %H:%M:%S"
 
+        all_temp_paths = getattr(config, 'TEMP_PATH')
+
+        self.image_table['temp_obsdate'] = 'nan'
+        self.image_table['temp_filename'] = 'nan'
+        self.image_table['temp_path'] = 'nan'
         g = gc.GOTOdb(phase=self.phase)
 
-        temp_df = pd.DataFrame(columns=["temp_obsdate", "temp_filename", "temp_target", "temp_date"])
-        temp_obsdate, temp_filename, temp_target, temp_date = [], [], [], []
-
         for img in self.image_table.iterrows():
-            query_cmd = """SELECT obsdate, filename, target FROM image WHERE target
-                        LIKE '%{}' AND filename LIKE '%{}-median.fits' ORDER BY obsdate DESC""".format(img[1]["tile"], img[1]["UT"])
-            temp_search = g.query(query_cmd)
+            try:
+                temp_search = query_db(tile=img[1]["tile"], ut=img[1]["UT"], first_date=first_date, conn=g, hardware_config='new')
+            except:
+                g = gc.GOTOdb(phase=self.phase)
+                temp_search = query_db(tile=img[1]["tile"], ut=img[1]["UT"], first_date=first_date, conn=g, hardware_config='new')
             
-            if temp_search.shape[0] != 0:
-                temp_search['date'] = [UTC2date(str(d)) for d in temp_search['obsdate']]
-                temp_search = temp_search[temp_search['date'] < first_date]
-                if temp_search.shape[0] != 0:
-                    temp_obsdate.append(temp_search.obsdate.values[0])
-                    temp_filename.append(temp_search.filename.values[0])
-                    temp_target.append(temp_search.target.values[0])
-                    temp_date.append(temp_search.date.values[0])
-                else:
-                    temp_obsdate.append('NaN')
-                    temp_filename.append('NaN')
-                    temp_target.append('NaN')
-                    temp_date.append('NaN')
+            if not temp_search.empty:
+                self.image_table.at[img[0], 'temp_filename'] = temp_search.iloc[0].filename
+                self.image_table.at[img[0], 'temp_obsdate'] = temp_search.iloc[0].obsdate
+                # self.image_table.at[img[0], 'temp_path'] = all_temp_paths[]                    
             else:
-                print("No {}({}) images could be found in database.".format(img[1]["tile"],img[1]["UT"]))
-
-        temp_df['temp_obsdate'] = temp_obsdate
-        temp_df['temp_filename'] = temp_filename
-        temp_df['temp_target'] = temp_target
-        temp_df['temp_date'] = temp_date
-
-        self.image_table = self.image_table.join(temp_df)
+                try:
+                    temp_search = query_db(tile=img[1]["tile"], ut=img[1]["UT"], first_date=first_date, conn=g, hardware_config='old')
+                except:
+                    g = gc.GOTOdb(phase=self.phase)
+                    temp_search = query_db(tile=img[1]["tile"], ut=img[1]["UT"], first_date=first_date, conn=g, hardware_config='old')
+                if not temp_search.empty:
+                    self.image_table.at[img[0], 'temp_filename'] = temp_search.iloc[0].filename
+                    self.image_table.at[img[0], 'temp_obsdate'] = temp_search.iloc[0].obsdate
+                    # self.image_table.at[img[0], 'temp_path'] = all_temp_paths[]       
