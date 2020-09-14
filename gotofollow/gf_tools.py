@@ -40,7 +40,7 @@ def find(date, filename):
                 abs_path = os.path.join(abs_path, filename)
                 return abs_path
             else:
-                return 0
+                return 'nan'
 
 def query_db(tile, ut, first_date, conn, hardware_config='new'):
     all_temp_paths = getattr(config, 'TEMP_PATH')

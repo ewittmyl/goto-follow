@@ -52,14 +52,13 @@ class GenerateReports():
             sci_path = find(sci_date, sci_fn)
 
             # get image path in gotohead
-            if sci_path != 0:
-                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                os.system('cp {} .'.format(sci_path))
-            else:
-                print("Science {} cannot be copied to the current directory.".format(sci_fn))
-                sci_date, sci_fn = "", ""
+            if not os.path.exists(sci_path):
+                print("Science image path does not exsits...")
+                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                os.system("rm -rf *.fits")
                 pass
-            
+            print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+            os.system('cp {} .'.format(sci_path))
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
@@ -90,31 +89,30 @@ class GenerateReports():
             if event_cls.image_table.shape[0] == 0:
                 print("All images are processed.")
                 return
-
+        
+        event_cls.image_table = event_cls.image_table[event_cls.image_table.temp_filename != 'nan']
         for img in event_cls.image_table.iterrows():
             # define useful information for both science and template images in order to be copied to the current directory
             sci_fn = img[1]['filename']
             print("Processing {}...".format(sci_fn))
             sci_date = img[1]['date']
             temp_fn = img[1]['temp_filename']
-            temp_date = img[1]['temp_date']
             sci_path = find(sci_date, sci_fn)
-            temp_path = find(temp_date, temp_fn)
-            if sci_path != 0:
-                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-                os.system('cp {} .'.format(sci_path))
-                if temp_path != 0:
-                    print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
-                    os.system('cp {} .'.format(temp_path))
-                else:
-                    print("Template {} cannot be copied to the current directory.".format(temp_fn))
-                    os.system('rm -rf *.fits')
-                    sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
-                    pass
-            else:
-                print("Science {} cannot be copied to the current directory.".format(sci_fn))
+            temp_path = img[1]['temp_path']
+            if not os.path.exists(sci_path):
+                print("Science image path does not exsits...")
                 sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                os.system("rm -rf *.fits")
                 pass
+            if not os.path.exists(temp_path):
+                print("Template path does not exsits...")
+                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                os.system("rm -rf *.fits")
+                pass
+            print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+            os.system('cp {} .'.format(sci_path))
+            print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
+            os.system('cp {} .'.format(temp_path))
 
             try:
                 print("Running GTR on {}...".format(sci_fn))

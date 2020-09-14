@@ -5,6 +5,7 @@ import numpy as np
 from .gf_tools import UTC2date, query_db
 from . import config
 from datetime import datetime
+import os
 
 
 class event():
@@ -97,7 +98,7 @@ class event():
             if not temp_search.empty:
                 self.image_table.at[img[0], 'temp_filename'] = temp_search.iloc[0].filename
                 self.image_table.at[img[0], 'temp_obsdate'] = temp_search.iloc[0].obsdate
-                # self.image_table.at[img[0], 'temp_path'] = all_temp_paths[]                    
+                self.image_table.at[img[0], 'temp_path'] = os.path.join(all_temp_paths[temp_search.iloc[0].target.split("_T")[0]], temp_search.iloc[0].instrument, temp_search.iloc[0].filename)
             else:
                 try:
                     temp_search = query_db(tile=img[1]["tile"], ut=img[1]["UT"], first_date=first_date, conn=g, hardware_config='old')
@@ -107,4 +108,4 @@ class event():
                 if not temp_search.empty:
                     self.image_table.at[img[0], 'temp_filename'] = temp_search.iloc[0].filename
                     self.image_table.at[img[0], 'temp_obsdate'] = temp_search.iloc[0].obsdate
-                    # self.image_table.at[img[0], 'temp_path'] = all_temp_paths[]       
+                    self.image_table.at[img[0], 'temp_path'] = os.path.join(all_temp_paths[temp_search.iloc[0].target.split("_T")[0]], temp_search.iloc[0].instrument, temp_search.iloc[0].filename)
