@@ -18,7 +18,7 @@ file_path = '/export/'
 class GenerateReports():
 
     @staticmethod
-    def TemplateComparing(target, day=1, score=0.85, near_galaxy=False, filter_known=True, phase=4):
+    def TemplateComparing(target, day=1, score=0.85, phase=4):
         # obtain image table for followup images and get their template
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
@@ -62,7 +62,7 @@ class GenerateReports():
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=None, thresh=score, near_galaxy=near_galaxy, filter_known=filter_known, report=True)
+                gtr.main(sci_fn, template=None, thresh=score, report=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except KeyError:
@@ -116,7 +116,7 @@ class GenerateReports():
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, filter_known=filter_known, report=True)
+                gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
@@ -128,7 +128,7 @@ class GenerateReports():
         
 
     @staticmethod
-    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.85, near_galaxy=True, filter_known=True, phase=4):     
+    def FollowupComparing(target, sci_day=1, temp_day=None, score=0.85, phase=4):     
         # get followup images taken on sci_day
         sci_obs = event.Query(target, day=sci_day, phase=phase)
 
@@ -237,7 +237,7 @@ class GenerateReports():
 
             try:
                 print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, near_galaxy=near_galaxy, filter_known=filter_known, report=True)
+                gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
                 os.system("fpack {}".format(sci_fn))
                 os.system("rm -rf *.fits")
             except:
