@@ -54,7 +54,7 @@ class event():
         image_table['UT'] = [fn.split("_")[1][:3] for fn in image_table.filename]
         # only select UT 1-4
         # if image_table.shape[0] != 0:
-        #     image_table = image_table[image_table.UT<'UT5']
+        #     image_table = image_table[image_table.UT>'UT5']
         image_table = image_table.reset_index().drop("index",axis=1)
 
         # get all observation dates
