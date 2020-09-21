@@ -116,16 +116,16 @@ class GenerateReports():
                 print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
                 os.system('cp {} .'.format(temp_path))
 
-                try:
-                    print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
-                    os.system("fpack {}".format(sci_fn))
-                    os.system("rm -rf *.fits")
-                except:
-                    print("GTR cannot be ran on {}...".format(sci_fn))
-                    os.system("rm -rf *.fits")
-                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
-                    pass
+                # try:
+                print("Running GTR on {}...".format(sci_fn))
+                gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
+                os.system("fpack {}".format(sci_fn))
+                os.system("rm -rf *.fits")
+                # except:
+                print("GTR cannot be ran on {}...".format(sci_fn))
+                os.system("rm -rf *.fits")
+                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                pass
                 sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
         
 
