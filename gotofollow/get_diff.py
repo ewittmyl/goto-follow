@@ -30,7 +30,7 @@ class GenerateReports():
             return
 
         # define all processed images which will be skipped in this run
-        processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
+        processed_img = [fn.split(".fz")[0] for fn in os.listdir("./") if '.fz' in fn]
         print("Unprocessed images: {}".format(len(processed_img)))
         if len(processed_img) != 0:
             print("Skip processing below processed images...")
@@ -54,16 +54,15 @@ class GenerateReports():
 
                 # get image path in gotohead
                 if not os.path.exists(sci_path):
-                    print("Science image path does not exsits...")
+                    print("Science image path does not exist...")
                     sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
-                    os.system("rm -rf *.fits")
                     pass
                 print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
                 os.system('cp {} .'.format(sci_path))
 
                 try:
                     print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=None, thresh=score, report=True)
+                    gtr.main(sci_fn, template=None, thresh=score, report=False)
                     os.system("fpack {}".format(sci_fn))
                     os.system("rm -rf *.fits")
                 except KeyError:
@@ -71,25 +70,8 @@ class GenerateReports():
                     print("GTR cannot be ran on {}...".format(sci_fn))
                     os.system("rm -rf *.fits")
                     sci_date, sci_fn = "", ""
-                    pass
 
                 sci_date, sci_fn = "", ""
-
-        # define all processed images which will be skipped in this run
-        # processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
-        # print("Unprocessed images: {}".format(len(processed_img)))
-        # if len(processed_img) != 0:
-        #     print("Skip processing below processed images...")
-        #     print(processed_img)
-        #     # filter out the processed images in the image table
-        #     processed_mask = event_cls.image_table['filename'].isin(processed_img)
-        #     event_cls.image_table = event_cls.image_table[~processed_mask]
-        #     print("Processing below images...")
-        #     print(event_cls.image_table['filename'].values)
-            
-        #     if event_cls.image_table.shape[0] == 0:
-        #         print("All images are processed.")
-        #         return
         
         else:
             event_cls.image_table = event_cls.image_table[event_cls.image_table.temp_filename != 'nan']
@@ -116,16 +98,16 @@ class GenerateReports():
                 print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
                 os.system('cp {} .'.format(temp_path))
 
-                # try:
-                print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
-                os.system("fpack {}".format(sci_fn))
-                os.system("rm -rf *.fits")
-                # except:
-                print("GTR cannot be ran on {}...".format(sci_fn))
-                os.system("rm -rf *.fits")
-                sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
-                pass
+                try:
+                    print("Running GTR on {}...".format(sci_fn))
+                    gtr.main(sci_fn, template=temp_fn, thresh=score, report=False)
+                    os.system("fpack {}".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                except:
+                    print("GTR cannot be ran on {}...".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    
                 sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
         
 
