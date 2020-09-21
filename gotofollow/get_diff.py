@@ -99,10 +99,10 @@ class GenerateReports():
                 os.system('cp {} .'.format(temp_path))
 
                 # try:
-                    print("Running GTR on {}...".format(sci_fn))
-                    gtr.main(sci_fn, template=temp_fn, thresh=score, report=False)
-                    os.system("fpack {}".format(sci_fn))
-                    os.system("rm -rf *.fits")
+                print("Running GTR on {}...".format(sci_fn))
+                gtr.main(sci_fn, template=temp_fn, thresh=score, report=False)
+                os.system("fpack {}".format(sci_fn))
+                os.system("rm -rf *.fits")
                 # except:
                     # print("GTR cannot be ran on {}...".format(sci_fn))
                     # os.system("rm -rf *.fits")
