@@ -18,7 +18,7 @@ file_path = '/export/'
 class GenerateReports():
 
     @staticmethod
-    def TemplateComparing(target, day=1, score=0.85, phase=4):
+    def TemplateComparing(target, day=1, score=0.85, phase=4, subtract=False):
         # obtain image table for followup images and get their template
         print("Query all follow-up images for {} taken on day {}...".format(target, day))
         event_cls = event.Query(target, day=day, phase=phase)
@@ -44,87 +44,89 @@ class GenerateReports():
             if event_cls.image_table.shape[0] == 0:
                 print("All images are processed.")
                 return
-        
-        for img in event_cls.image_table.iterrows():
-            sci_fn = img[1]['filename']
-            print("Processing {}...".format(sci_fn))
-            sci_date = img[1]['date']
-            sci_path = find(sci_date, sci_fn)
 
-            # get image path in gotohead
-            if not os.path.exists(sci_path):
-                print("Science image path does not exsits...")
-                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
-                os.system("rm -rf *.fits")
-                pass
-            print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-            os.system('cp {} .'.format(sci_path))
+        if not subtract:
+            for img in event_cls.image_table.iterrows():
+                sci_fn = img[1]['filename']
+                print("Processing {}...".format(sci_fn))
+                sci_date = img[1]['date']
+                sci_path = find(sci_date, sci_fn)
 
-            try:
-                print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=None, thresh=score, report=True)
-                os.system("fpack {}".format(sci_fn))
-                os.system("rm -rf *.fits")
-            except KeyError:
-                print(sys.exc_info()[0])
-                print("GTR cannot be ran on {}...".format(sci_fn))
-                os.system("rm -rf *.fits")
+                # get image path in gotohead
+                if not os.path.exists(sci_path):
+                    print("Science image path does not exsits...")
+                    sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                    os.system("rm -rf *.fits")
+                    pass
+                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                os.system('cp {} .'.format(sci_path))
+
+                try:
+                    print("Running GTR on {}...".format(sci_fn))
+                    gtr.main(sci_fn, template=None, thresh=score, report=True)
+                    os.system("fpack {}".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                except KeyError:
+                    print(sys.exc_info()[0])
+                    print("GTR cannot be ran on {}...".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                    sci_date, sci_fn = "", ""
+                    pass
+
                 sci_date, sci_fn = "", ""
-                pass
-
-            sci_date, sci_fn = "", ""
 
         # define all processed images which will be skipped in this run
-        processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
-        print("Unprocessed images: {}".format(len(processed_img)))
-        if len(processed_img) != 0:
-            print("Skip processing below processed images...")
-            print(processed_img)
-            # filter out the processed images in the image table
-            processed_mask = event_cls.image_table['filename'].isin(processed_img)
-            event_cls.image_table = event_cls.image_table[~processed_mask]
-            print("Processing below images...")
-            print(event_cls.image_table['filename'].values)
+        # processed_img = [''.join([fn.split("_report")[0],".fits"]) for fn in os.listdir("./") if 'report' in fn]
+        # print("Unprocessed images: {}".format(len(processed_img)))
+        # if len(processed_img) != 0:
+        #     print("Skip processing below processed images...")
+        #     print(processed_img)
+        #     # filter out the processed images in the image table
+        #     processed_mask = event_cls.image_table['filename'].isin(processed_img)
+        #     event_cls.image_table = event_cls.image_table[~processed_mask]
+        #     print("Processing below images...")
+        #     print(event_cls.image_table['filename'].values)
             
-            if event_cls.image_table.shape[0] == 0:
-                print("All images are processed.")
-                return
+        #     if event_cls.image_table.shape[0] == 0:
+        #         print("All images are processed.")
+        #         return
         
-        event_cls.image_table = event_cls.image_table[event_cls.image_table.temp_filename != 'nan']
-        for img in event_cls.image_table.iterrows():
-            # define useful information for both science and template images in order to be copied to the current directory
-            sci_fn = img[1]['filename']
-            print("Processing {}...".format(sci_fn))
-            sci_date = img[1]['date']
-            temp_fn = img[1]['temp_filename']
-            sci_path = find(sci_date, sci_fn)
-            temp_path = img[1]['temp_path']
-            if not os.path.exists(sci_path):
-                print("Science image path does not exsits...")
-                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
-                os.system("rm -rf *.fits")
-                pass
-            if not os.path.exists(temp_path):
-                print("Template path does not exsits...")
-                sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
-                os.system("rm -rf *.fits")
-                pass
-            print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
-            os.system('cp {} .'.format(sci_path))
-            print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
-            os.system('cp {} .'.format(temp_path))
+        else:
+            event_cls.image_table = event_cls.image_table[event_cls.image_table.temp_filename != 'nan']
+            for img in event_cls.image_table.iterrows():
+                # define useful information for both science and template images in order to be copied to the current directory
+                sci_fn = img[1]['filename']
+                print("Processing {}...".format(sci_fn))
+                sci_date = img[1]['date']
+                temp_fn = img[1]['temp_filename']
+                sci_path = find(sci_date, sci_fn)
+                temp_path = img[1]['temp_path']
+                if not os.path.exists(sci_path):
+                    print("Science image path does not exsits...")
+                    sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                    os.system("rm -rf *.fits")
+                    pass
+                if not os.path.exists(temp_path):
+                    print("Template path does not exsits...")
+                    sci_path, sci_fn, temp_path, temp_fn = "", "", "", ""
+                    os.system("rm -rf *.fits")
+                    pass
+                print("Copying science {} to the current directory from {}".format(sci_fn, sci_path))
+                os.system('cp {} .'.format(sci_path))
+                print("Copying template {} to the current directory from {}".format(temp_fn, temp_path))
+                os.system('cp {} .'.format(temp_path))
 
-            try:
-                print("Running GTR on {}...".format(sci_fn))
-                gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
-                os.system("fpack {}".format(sci_fn))
-                os.system("rm -rf *.fits")
-            except:
-                print("GTR cannot be ran on {}...".format(sci_fn))
-                os.system("rm -rf *.fits")
+                try:
+                    print("Running GTR on {}...".format(sci_fn))
+                    gtr.main(sci_fn, template=temp_fn, thresh=score, report=True)
+                    os.system("fpack {}".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                except:
+                    print("GTR cannot be ran on {}...".format(sci_fn))
+                    os.system("rm -rf *.fits")
+                    sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
+                    pass
                 sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
-                pass
-            sci_date, sci_fn, temp_date, temp_fn = "", "", "", ""
         
 
     @staticmethod
